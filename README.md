@@ -4,3 +4,9 @@ Word Directory has changing autonomous and tank drive<br>
 AutonomousSample for tested autonomy<br>
 Disregard Robot Code.java<br>
 IterRobot directory has same code as word directory commit 5
+
+talonleft = 0
+victorleft = 1
+
+talonright = 9
+victorright = 10
