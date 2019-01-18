@@ -19,15 +19,37 @@ import edu.wpi.first.wpilibj.drive.DifferentialDrive;
 public class Robot extends TimedRobot {
   private DifferentialDrive m_myRobot;
   private Joystick logitechController = new Joystick(0);
+  
+  boolean toggleOn = false;
+  boolean togglePressed = false;
+
 
   @Override
   public void robotInit() {
     m_myRobot = new DifferentialDrive(new PWMTalonSRX(0), new PWMTalonSRX(1));
-  
   }
 
   @Override
   public void teleopPeriodic() {
-    m_myRobot.tankDrive(logitechController.getRawAxis(1), logitechController.getRawAxis(5));
+    updateToggle();
+    if(toggleOn){
+      m_myRobot.arcadeDrive(logitechController.getRawAxis(1),logitechController.getRawAxis(0));    
+    }
+    else{
+      m_myRobot.tankDrive(logitechController.getRawAxis(1), logitechController.getRawAxis(5));
+    }
   }
+
+  public void updateToggle()
+    {
+        if(logitechController.getRawButton(1)){
+            if(!togglePressed){
+                toggleOn = !toggleOn;
+                togglePressed = true;
+            }
+        }else{
+            togglePressed = false;
+        }
+    }
+
 }
