@@ -58,6 +58,11 @@ public class Robot extends TimedRobot {
       //X Aracde-Drive, left joystick controls left wheels, right wheels
       m_drive.arcadeDrive(logitechController.getRawAxis(1), logitechController.getRawAxis(0));
       break;
+    case 6:
+      //Right Trigger, turn 90 degrees
+      System.out.println("Right Trigger Pressed");
+      //m_drive.arcadeDrive(1, 1);
+      break;
   }
 }
   public void updateToggle()
@@ -70,6 +75,9 @@ public class Robot extends TimedRobot {
         }
         if(logitechController.getRawButton(3)){
           driveState = 3;
+        }
+        if(logitechController.getRawButton(6)){
+          driveState = 6;
         }
     }
 
