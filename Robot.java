@@ -21,6 +21,7 @@ import edu.wpi.first.wpilibj.Timer;
 public class Robot extends TimedRobot {
   private Joystick logitechController = new Joystick(0);
   private int driveState;
+  private String intakeState;
   private  BuiltInAccelerometer accel = new BuiltInAccelerometer();
   private DifferentialDrive m_drive;
   private DifferentialDrive m_intake;
@@ -64,20 +65,17 @@ public class Robot extends TimedRobot {
   public void teleopPeriodic() {
     System.out.println(accel.getX() + ", " + accel.getY() + ", " + accel.getZ());
 
-    if(logitechController.getRawButton(5)){
-      m_intake.arcadeDrive(-1,0);
-    }
-    if(logitechController.getRawButton(5) == false){
-      m_intake.arcadeDrive(0,0);
-    }
-    if(logitechController.getRawButton(6)){
-      m_intake.arcadeDrive(0,1);
-    }
-    if(logitechController.getRawButton(6) == false){
-      m_intake.arcadeDrive(0,0);
-    }
     updateToggle();
     switch(intakeState){
+      case "LBDown":
+        m_intake.arcadeDrive(-1,0);
+        break;
+      case "None":
+        m_intake.arcadeDrive(0,0);
+        break;
+      case "RBDown":
+        m_intake.arcadeDrive(0,-1);
+        break;
       
     }
     switch(driveState){
@@ -99,6 +97,16 @@ public class Robot extends TimedRobot {
 }
   public void updateToggle()
     {
+      if(logitechController.getRawButton(5)){
+       intakeState = "LBDown";
+      }
+      else if(logitechController.getRawButton(6)){
+       intakeState = "RBDown";
+      }
+      else if(!logitechController.getRawButton(6)&&!logitechController.getRawButton(5)){
+        intakeState = "None";
+      }
+
         if(logitechController.getRawButton(1)){
             driveState = 1;
         }
