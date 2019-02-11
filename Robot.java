@@ -67,10 +67,25 @@ public class Robot extends TimedRobot {
   @Override
   public void teleopPeriodic() {
     System.out.println(accel.getX() + ", " + accel.getY() + ", " + accel.getZ());
-    elevRight.set(.95);
-    elevLeft.set(-1); //speed is 100%
-    
-    //anything below is not being used
+    /*
+    if(!logitechController.getRawButton(6)&&!logitechController.getRawButton(5)){//||!limitSwitch.get()){
+      elevState = "None";
+      elevRight.set(0);
+      elevLeft.set(0); 
+    }
+    */
+    if(logitechController.getRawButton(2)){ //test the controller (from 5 to 6)
+      elevRight.set(.95);
+      elevLeft.set(-1); 
+     }
+     else if(logitechController.getRawButton(3)){
+      elevRight.set(-1);
+      elevLeft.set(1); 
+     }
+     else{
+       elevRight.set(0);
+       elevLeft.set(0);
+     }
     // updateToggle();
     // switch(elevState){
     //   case "Forward":
@@ -85,7 +100,7 @@ public class Robot extends TimedRobot {
     //     elevLeft.set(-1); //speed is 100%
     //     elevRight.set(1);
     //     break;
-    //}
+    // }
     // switch(driveState){
     // case "semi-arcade":
     //   //A Semi-Arcade-Drive, left joystick controls forward/backward movement, right joystick controls side-to-side movement
