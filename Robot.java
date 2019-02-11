@@ -30,8 +30,8 @@ public class Robot extends TimedRobot {
   private final Timer m_timer = new Timer();
   DigitalInput limitSwitch = new DigitalInput(2);
   
-  private PWMVictorSPX elevLeft = new PWMVictorSPX(6);
-  private PWMVictorSPX elevRight = new PWMVictorSPX(7);
+  private PWMVictorSPX elevLeft = new PWMVictorSPX(3);
+  private PWMVictorSPX elevRight = new PWMVictorSPX(4);
   private DMC60 intake = new DMC60(2);
 
   @Override
@@ -67,21 +67,25 @@ public class Robot extends TimedRobot {
   @Override
   public void teleopPeriodic() {
     System.out.println(accel.getX() + ", " + accel.getY() + ", " + accel.getZ());
-    updateToggle();
-    switch(elevState){
-      case "Forward":
-        elevLeft.set(1); //speed is 100%
-        elevRight.set(-1);
-        break;
-      case "None":
-        elevLeft.set(0); //speed is 100%
-        elevRight.set(0);
-        break;
-      case "Backward":
-        elevLeft.set(-1); //speed is 100%
-        elevRight.set(1);
-        break;
-    }
+    elevRight.set(.95);
+    elevLeft.set(-1); //speed is 100%
+    
+    //anything below is not being used
+    // updateToggle();
+    // switch(elevState){
+    //   case "Forward":
+    //     elevLeft.set(1); //speed is 100%
+    //     elevRight.set(-1);
+    //     break;
+    //   case "None":
+    //     elevLeft.set(0); //speed is 0%
+    //     elevRight.set(0);
+    //     break;
+    //   case "Backward":
+    //     elevLeft.set(-1); //speed is 100%
+    //     elevRight.set(1);
+    //     break;
+    //}
     // switch(driveState){
     // case "semi-arcade":
     //   //A Semi-Arcade-Drive, left joystick controls forward/backward movement, right joystick controls side-to-side movement
@@ -104,10 +108,10 @@ public class Robot extends TimedRobot {
       if(!logitechController.getRawButton(6)&&!logitechController.getRawButton(5)||!limitSwitch.get()){
         elevState = "None";
       }
-      else if(logitechController.getRawButton(6)){ //test the controller (from 5 to 6)
+      else if(logitechController.getRawButton(2)){ //test the controller (from 5 to 6)
        elevState = "Forward";
       }
-      else if(logitechController.getRawButton(5)){
+      else if(logitechController.getRawButton(3)){
        elevState = "Backward";
       }
       
@@ -131,5 +135,4 @@ public class Robot extends TimedRobot {
           driveState = "arcade-drive";
         }
     }
-
 }
