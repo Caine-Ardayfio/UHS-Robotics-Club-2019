@@ -20,16 +20,14 @@ import edu.wpi.first.wpilibj.DMC60;
 import edu.wpi.first.wpilibj.DigitalInput;
 
 public class Robot extends TimedRobot {
-  private Joystick logitechController = new Joystick(0);
-  private String driveState;
-  private String elevState;
-  private String intakeState;
-  
+  private Joystick logitechController = new Joystick(1);
+  private Joystick logitechJoystick = new Joystick(0);
+
   private BuiltInAccelerometer accel = new BuiltInAccelerometer();
   private DifferentialDrive m_drive;
   private final Timer m_timer = new Timer();
-  DigitalInput limitSwitch = new DigitalInput(2);
-  
+  DigitalInput LimitSwitch_bottom = new DigitalInput(2);
+  DigitalInput LimitSwitch_top = new DigitalInput(3);
   private PWMVictorSPX elevLeft = new PWMVictorSPX(3);
   private PWMVictorSPX elevRight = new PWMVictorSPX(4);
   private DMC60 intake = new DMC60(2);
@@ -50,35 +48,14 @@ public class Robot extends TimedRobot {
   }
 
   @Override
-  public void autonomousInit() {
-    m_timer.reset();
-    m_timer.start();
-  }
-  @Override
-  public void autonomousPeriodic() {
-        // Drive for 2 seconds
-        if (m_timer.get() < 2.0) {
-          m_drive.arcadeDrive(0.5, 0.0); // drive forwards half speed
-        } else {
-          m_drive.stopMotor(); // stop robot
-        }    
-  }
-
-  @Override
   public void teleopPeriodic() {
     System.out.println(accel.getX() + ", " + accel.getY() + ", " + accel.getZ());
-    /*
-    if(!logitechController.getRawButton(6)&&!logitechController.getRawButton(5)){//||!limitSwitch.get()){
-      elevState = "None";
-      elevRight.set(0);
-      elevLeft.set(0); 
-    }
-    */
-    if(logitechController.getRawButton(2)){ //test the controller (from 5 to 6)
+    //Elevator
+    if(logitechJoystick.getRawButton(3) && !LimitSwitch_bottom.get()){ 
       elevRight.set(.95);
       elevLeft.set(-1); 
      }
-     else if(logitechController.getRawButton(3)){
+     else if(logitechJoystick.getRawButton(4) && !LimitSwitch_top.get()){
       elevRight.set(-1);
       elevLeft.set(1); 
      }
@@ -86,68 +63,17 @@ public class Robot extends TimedRobot {
        elevRight.set(0);
        elevLeft.set(0);
      }
-    // updateToggle();
-    // switch(elevState){
-    //   case "Forward":
-    //     elevLeft.set(1); //speed is 100%
-    //     elevRight.set(-1);
-    //     break;
-    //   case "None":
-    //     elevLeft.set(0); //speed is 0%
-    //     elevRight.set(0);
-    //     break;
-    //   case "Backward":
-    //     elevLeft.set(-1); //speed is 100%
-    //     elevRight.set(1);
-    //     break;
-    // }
-    // switch(driveState){
-    // case "semi-arcade":
-    //   //A Semi-Arcade-Drive, left joystick controls forward/backward movement, right joystick controls side-to-side movement
-    //   m_drive.arcadeDrive(logitechController.getRawAxis(1), logitechController.getRawAxis(4));
-    //   break;
-    // case "tank-drive":
-    //   //B Tank-Drive, left joystick controls left wheels, right joystick controls right wheels
-    //   m_drive.tankDrive(logitechController.getRawAxis(5),logitechController.getRawAxis(1));
-    //   break;
-    // case "arcade-drive":    
-    //   //X Aracde-Drive, left joystick controls left wheels, right wheels
-    //   m_drive.arcadeDrive(logitechController.getRawAxis(1), logitechController.getRawAxis(0));
-    //   break;
-    // }
-    
-
-}
-  public void updateToggle()
-    {
-      if(!logitechController.getRawButton(6)&&!logitechController.getRawButton(5)||!limitSwitch.get()){
-        elevState = "None";
-      }
-      else if(logitechController.getRawButton(2)){ //test the controller (from 5 to 6)
-       elevState = "Forward";
-      }
-      else if(logitechController.getRawButton(3)){
-       elevState = "Backward";
-      }
-      
-      if(0.9 > logitechController.getRawAxis(2)&&0.9 > logitechController.getRawAxis(3)){
-        intakeState = "None";
-       } 
-       else if(logitechController.getRawAxis(3) >= 0.91){
-        intakeState = "Forward";
-       }
-       else if(logitechController.getRawAxis(2) >= 0.91){
-         intakeState = "Backward";
-       }
-
-        if(logitechController.getRawButton(1)){
-            driveState = "semi-arcade";
-        }
-        else if(logitechController.getRawButton(2)){
-          driveState = "tank-drive";
-        }
-        else if(logitechController.getRawButton(3)){
-          driveState = "arcade-drive";
-        }
-    }
+     //Intake
+     if(logitechJoystick.getRawButton(6)){ 
+      intake.set(1);
+     }
+     else if(logitechJoystick.getRawButton(5)){
+      intake.set(-1);
+     }
+     else{
+       intake.set(0);
+     }
+     //Drive
+     m_drive.tankDrive(logitechController.getRawAxis(5),logitechController.getRawAxis(1));
+  }
 }
