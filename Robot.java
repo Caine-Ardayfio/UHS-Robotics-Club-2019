@@ -51,13 +51,45 @@ public class Robot extends TimedRobot {
   public void teleopPeriodic() {
     System.out.println(accel.getX() + ", " + accel.getY() + ", " + accel.getZ());
     //Elevator
-    if(logitechJoystick.getRawButton(3) && !LimitSwitch_bottom.get()){ 
+    if(logitechJoystick.getRawButton(3) && !LimitSwitch_top.get()){ 
+      //Elevator up one level
+      m_timer.start();
+      while(m_timer.get() < 1.0) {
       elevRight.set(.95);
-      elevLeft.set(-1); 
+      elevLeft.set(-1);
+      }
+      m_timer.stop();
+      m_timer.reset();
      }
-     else if(logitechJoystick.getRawButton(4) && !LimitSwitch_top.get()){
+     else if(logitechJoystick.getRawButton(4) && !LimitSwitch_bottom.get()){
+      //Elevator down one level
+      m_timer.start();
+      while(m_timer.get() < 1.0){
       elevRight.set(-1);
       elevLeft.set(1); 
+      }
+      m_timer.stop();
+      m_timer.reset();
+     }
+     else if(logitechController.getRawButton(1) && !LimitSwitch_top.get()){
+      //Elevator up two levels
+      m_timer.start();
+      while(m_timer.get() < 2.0){
+        elevLeft.set(-1);
+        elevRight.set(.95);
+      }
+      m_timer.stop();
+      m_timer.reset();
+     }
+     else if(logitechController.getRawButton(2) && !LimitSwitch_bottom.get()){
+      //Elevator down two levels
+      m_timer.start();
+      while(m_timer.get() < 2.0){
+        elevLeft.set(1);
+        elevRight.set(-1);
+      }
+      m_timer.stop();
+      m_timer.reset(); 
      }
      else{
        elevRight.set(0);
