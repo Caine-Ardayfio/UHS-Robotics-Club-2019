@@ -30,15 +30,15 @@ public class Robot extends TimedRobot {
   DigitalInput LimitSwitch_top = new DigitalInput(3);
   private PWMVictorSPX elevLeft = new PWMVictorSPX(3);
   private PWMVictorSPX elevRight = new PWMVictorSPX(4);
-  private DMC60 intake = new DMC60(2);
+  private PWMVictorSPX intake = new PWMVictorSPX(2);
 
   @Override
   public void robotInit() {
-    PWMTalonSRX m_frontLeft = new PWMTalonSRX(0);
+    PWMVictorSPX m_frontLeft = new PWMVictorSPX(0);
     PWMVictorSPX m_rearLeft = new PWMVictorSPX(1);
     SpeedControllerGroup m_left = new SpeedControllerGroup(m_frontLeft, m_rearLeft);
 
-    PWMTalonSRX m_frontRight = new PWMTalonSRX(8);
+    PWMVictorSPX m_frontRight = new PWMVictorSPX(8);
     PWMVictorSPX m_rearRight = new PWMVictorSPX(9);
 
     SpeedControllerGroup m_right = new SpeedControllerGroup(m_frontRight, m_rearRight);
@@ -46,50 +46,66 @@ public class Robot extends TimedRobot {
 
     CameraServer.getInstance().startAutomaticCapture();
   }
-
+  @Override
+  public void autonomousInit() {
+    m_timer.reset();
+    m_timer.start();
+  }
+  @Override
+  public void autonomousPeriodic() {
+    //Deep Space: 27 ft * 54 ft
+    if(accel.getX()<1 || accel.getY()<1 || accel.getZ()<1){
+      if(m_timer.get() < 1.6){
+        m_drive.tankDrive(1,1);
+      }
+      else if(m_timer.get() > 1.9){
+        elevLeft.set(-1);
+        elevRight.set(1);
+      }
+      else if(m_timer.get() > 2.2){
+        intake.set(1);
+      }
+    }
+  }
   @Override
   public void teleopPeriodic() {
     System.out.println(accel.getX() + ", " + accel.getY() + ", " + accel.getZ());
     //Elevator
-    if(logitechJoystick.getRawButton(3) && !LimitSwitch_top.get()){ 
+    if(logitechJoystick.getRawButton(3) /*&& !LimitSwitch_top.get()*/){ 
       //Elevator up one level
+      m_timer.reset();
       m_timer.start();
       while(m_timer.get() < 1.0) {
-      elevRight.set(.95);
-      elevLeft.set(-1);
+        elevRight.set(.95);
+        elevLeft.set(-1);
       }
-      m_timer.stop();
-      m_timer.reset();
      }
-     else if(logitechJoystick.getRawButton(4) && !LimitSwitch_bottom.get()){
+     else if(logitechJoystick.getRawButton(4) /* && !LimitSwitch_bottom.get()*/){
       //Elevator down one level
+      m_timer.reset();
       m_timer.start();
       while(m_timer.get() < 1.0){
-      elevRight.set(-1);
-      elevLeft.set(1); 
+        elevRight.set(-1);
+        elevLeft.set(1); 
       }
-      m_timer.stop();
-      m_timer.reset();
      }
      else if(logitechController.getRawButton(1) && !LimitSwitch_top.get()){
       //Elevator up two levels
+      m_timer.reset();
       m_timer.start();
       while(m_timer.get() < 2.0){
         elevLeft.set(-1);
         elevRight.set(.95);
       }
-      m_timer.stop();
-      m_timer.reset();
      }
      else if(logitechController.getRawButton(2) && !LimitSwitch_bottom.get()){
       //Elevator down two levels
+      m_timer.reset();
       m_timer.start();
       while(m_timer.get() < 2.0){
         elevLeft.set(1);
         elevRight.set(-1);
       }
-      m_timer.stop();
-      m_timer.reset(); 
      }
      else{
        elevRight.set(0);
@@ -106,6 +122,6 @@ public class Robot extends TimedRobot {
        intake.set(0);
      }
      //Drive
-     m_drive.tankDrive(logitechController.getRawAxis(5),logitechController.getRawAxis(1));
+     m_drive.tankDrive(-logitechController.getRawAxis(1),-logitechController.getRawAxis(5));
   }
 }
