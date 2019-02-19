@@ -8,7 +8,6 @@
 package frc.robot;
 
 import edu.wpi.first.wpilibj.Joystick;
-import edu.wpi.first.wpilibj.PWMTalonSRX;
 import edu.wpi.first.wpilibj.PWMVictorSPX;
 import edu.wpi.first.wpilibj.SpeedControllerGroup;
 import edu.wpi.first.wpilibj.TimedRobot;
@@ -16,112 +15,160 @@ import edu.wpi.first.wpilibj.drive.DifferentialDrive;
 import edu.wpi.first.wpilibj.BuiltInAccelerometer;
 import edu.wpi.first.cameraserver.CameraServer;
 import edu.wpi.first.wpilibj.Timer;
-import edu.wpi.first.wpilibj.DMC60;
 import edu.wpi.first.wpilibj.DigitalInput;
+import java.lang.Math;
 
 public class Robot extends TimedRobot {
+  //Controllers
   private Joystick logitechController = new Joystick(1);
   private Joystick logitechJoystick = new Joystick(0);
 
+  //Auxiliary
   private BuiltInAccelerometer accel = new BuiltInAccelerometer();
   private DifferentialDrive m_drive;
   private final Timer m_timer = new Timer();
   DigitalInput LimitSwitch_bottom = new DigitalInput(2);
-  DigitalInput LimitSwitch_top = new DigitalInput(3);
+
+  //Motor Controllers
   private PWMVictorSPX elevLeft = new PWMVictorSPX(3);
   private PWMVictorSPX elevRight = new PWMVictorSPX(4);
   private PWMVictorSPX intake = new PWMVictorSPX(2);
 
+  //Variables
+  private int elevState = 0;
+
   @Override
   public void robotInit() {
+    //Initialize Drive Train
     PWMVictorSPX m_frontLeft = new PWMVictorSPX(0);
     PWMVictorSPX m_rearLeft = new PWMVictorSPX(1);
     SpeedControllerGroup m_left = new SpeedControllerGroup(m_frontLeft, m_rearLeft);
 
     PWMVictorSPX m_frontRight = new PWMVictorSPX(8);
     PWMVictorSPX m_rearRight = new PWMVictorSPX(9);
-
     SpeedControllerGroup m_right = new SpeedControllerGroup(m_frontRight, m_rearRight);
     m_drive = new DifferentialDrive(m_left, m_right);   
 
+    //Initialize Camera
     CameraServer.getInstance().startAutomaticCapture();
   }
-  @Override
-  public void autonomousInit() {
-    m_timer.reset();
-    m_timer.start();
-  }
-  @Override
-  public void autonomousPeriodic() {
-    //Deep Space: 27 ft * 54 ft
-    if(accel.getX()<1 || accel.getY()<1 || accel.getZ()<1){
-      if(m_timer.get() < 1.6){
-        m_drive.tankDrive(1,1);
-      }
-      else if(m_timer.get() > 1.9){
-        elevLeft.set(-1);
-        elevRight.set(1);
-      }
-      else if(m_timer.get() > 2.2){
-        intake.set(1);
-      }
-    }
-  }
+
   @Override
   public void teleopPeriodic() {
     System.out.println(accel.getX() + ", " + accel.getY() + ", " + accel.getZ());
     //Elevator
-    if(logitechJoystick.getRawButton(3) /*&& !LimitSwitch_top.get()*/){ 
-      //Elevator up one level
-      m_timer.reset();
-      m_timer.start();
-      while(m_timer.get() < 1.0) {
-        elevRight.set(.95);
+    System.out.println(LimitSwitch_bottom.get());
+    /*
+      //Level 3
+      if(elevState == 1){
+        m_timer.reset();
+        m_timer.start();
+        //Should go up
+        if(m_timer.get() < 6.0){
+          elevLeft.set(-1);
+          elevRight.set(.95);
+        }
+      }
+      //Level 2
+      else if(elevState == 2){
+        m_timer.reset();
+        m_timer.start();
+        //Should go up
+        if(m_timer.get() < 4){
+          elevLeft.set(-1);
+          elevRight.set(0.95);
+        }
+      }
+      //Level 1
+      else if(elevState == 3){
+        m_timer.reset();
+        m_timer.start();
+        //Should go up
+        if(m_timer.get() < 2.0){
+          elevLeft.set(-1);
+          elevRight.set(0.95);
+        }
+      }
+      */
+      //Manual Control Up
+      /*
+       if(elevState == 4){
         elevLeft.set(-1);
+          elevRight.set(0.95);
       }
-     }
-     else if(logitechJoystick.getRawButton(4) /* && !LimitSwitch_bottom.get()*/){
-      //Elevator down one level
-      m_timer.reset();
-      m_timer.start();
-      while(m_timer.get() < 1.0){
-        elevRight.set(-1);
-        elevLeft.set(1); 
+      //Manual Control Down
+      else if(elevState == 5){// && LimitSwitch_bottom.get()){
+          elevLeft.set(1);
+          elevRight.set(-1);
       }
-     }
-     else if(logitechController.getRawButton(1) && !LimitSwitch_top.get()){
-      //Elevator up two levels
-      m_timer.reset();
-      m_timer.start();
-      while(m_timer.get() < 2.0){
+      /*
+      //All the way down-trigger pressed
+      else if(elevState == 6){// && LimitSwitch_bottom.get()){
+        if(m_timer.get() < 8){
+          elevLeft.set(1);
+          elevRight.set(-1);
+        }
+        
+      }
+    //Limit Switch
+    else if(!LimitSwitch_bottom.get()){
+      elevLeft.set(0);
+      elevRight.set(0);
+    }
+    else{
+      elevLeft.set(0);
+      elevRight.set(0);
+    }
+      */
+
+      // if(logitechJoystick.getRawButton(8)){ 
+      //   elevState = 1;
+      // }
+      // else if(logitechJoystick.getRawButton(10)){
+      //     elevState = 2;
+      // }
+      // else if (logitechJoystick.getRawButton(12)){
+      //   elevState = 3;
+      // }
+      // else if(logitechJoystick.getRawAxis(1) > 0.8){
+      //   elevState = 4;
+      // }
+      // else if(logitechJoystick.getRawAxis(1) < 0.2){
+      //   elevState = 5;
+      // }
+      // else if(logitechJoystick.getRawButton(1)){
+      //   elevState = 6;
+      // }
+
+      //elevator
+      if (logitechJoystick.getRawAxis(1)>.5){
         elevLeft.set(-1);
-        elevRight.set(.95);
-      }
-     }
-     else if(logitechController.getRawButton(2) && !LimitSwitch_bottom.get()){
-      //Elevator down two levels
-      m_timer.reset();
-      m_timer.start();
-      while(m_timer.get() < 2.0){
+        elevRight.set(.95);}
+      else if (logitechJoystick.getRawAxis(1)<-.5){
         elevLeft.set(1);
         elevRight.set(-1);
       }
-     }
-     else{
-       elevRight.set(0);
-       elevLeft.set(0);
-     }
+      else{
+        elevLeft.set(0);
+        elevRight.set(0);
+      }
+      
+
      //Intake
-     if(logitechJoystick.getRawButton(6)){ 
-      intake.set(1);
-     }
-     else if(logitechJoystick.getRawButton(5)){
-      intake.set(-1);
-     }
-     else{
-       intake.set(0);
-     }
-     //Drive
-     m_drive.tankDrive(-logitechController.getRawAxis(1),-logitechController.getRawAxis(5));
+     if(logitechJoystick.getRawButton(6)){ intake.set(1); }
+     else if(logitechJoystick.getRawButton(5)){ intake.set(-1); }
+     else{ intake.set(0); }
+
+    //Inverse sine drive
+     double logSpeed1;
+     double logSpeed2;
+     double rawSpeed1 = logitechController.getRawAxis(1);
+     double rawSpeed2 = logitechController.getRawAxis(5);
+    
+     logSpeed1 = Math.asin(rawSpeed1);
+     logSpeed2 = Math.asin(rawSpeed2);
+     System.out.println(logSpeed1);
+     System.out.println(logSpeed2);
+     m_drive.tankDrive(-logSpeed1, -logSpeed2);
   }
 }
