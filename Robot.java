@@ -63,12 +63,15 @@ public class Robot extends TimedRobot {
       if(elevState == 1){
         m_timer.reset();
         m_timer.start();
+        elevLeft.set(-1);
+        elevRight.set(.95);
         //Should go up
-        if(m_timer.get() < 6.0){
-          elevLeft.set(-1);
-          elevRight.set(.95);
+        if(m_timer.get() >= 6.0){
+         elevLeft.set(0);
+         elevRight.set(0);
         }
       }
+      
       //Level 2
       else if(elevState == 2){
         m_timer.reset();
@@ -76,75 +79,69 @@ public class Robot extends TimedRobot {
         //Should go up
         if(m_timer.get() < 4){
           elevLeft.set(-1);
-          elevRight.set(0.95);
+          elevRight.set(.95);
+        }
+        else{
+         elevLeft.set(0);
+          elevRight.set(0);
         }
       }
+
       //Level 1
       else if(elevState == 3){
         m_timer.reset();
         m_timer.start();
         //Should go up
-        if(m_timer.get() < 2.0){
+        if(m_timer.get() > 2){
+          elevLeft.set(0);
+          elevRight.set(0);
+      }
+        else{
           elevLeft.set(-1);
           elevRight.set(0.95);
         }
       }
-      */
-      //Manual Control Up
-      /*
-       if(elevState == 4){
-        elevLeft.set(-1);
-          elevRight.set(0.95);
-      }
-      //Manual Control Down
-      else if(elevState == 5){// && LimitSwitch_bottom.get()){
-          elevLeft.set(1);
-          elevRight.set(-1);
-      }
-      /*
+      
       //All the way down-trigger pressed
-      else if(elevState == 6){// && LimitSwitch_bottom.get()){
+      else if(elevState == 4 && LimitSwitch_bottom.get()){
         if(m_timer.get() < 8){
           elevLeft.set(1);
           elevRight.set(-1);
         }
-        
+        else{
+          elevLeft.set(0);
+          elevRight.set(0);
+        }
       }
+      
+        
+      
     //Limit Switch
     else if(!LimitSwitch_bottom.get()){
       elevLeft.set(0);
       elevRight.set(0);
-    }
-    else{
-      elevLeft.set(0);
-      elevRight.set(0);
-    }
-      */
+    } */
+    /*
 
-      // if(logitechJoystick.getRawButton(8)){ 
-      //   elevState = 1;
-      // }
-      // else if(logitechJoystick.getRawButton(10)){
-      //     elevState = 2;
-      // }
-      // else if (logitechJoystick.getRawButton(12)){
-      //   elevState = 3;
-      // }
-      // else if(logitechJoystick.getRawAxis(1) > 0.8){
-      //   elevState = 4;
-      // }
-      // else if(logitechJoystick.getRawAxis(1) < 0.2){
-      //   elevState = 5;
-      // }
-      // else if(logitechJoystick.getRawButton(1)){
-      //   elevState = 6;
-      // }
-
-      //elevator
-      if (logitechJoystick.getRawAxis(1)>.5){
+      if(logitechJoystick.getRawButton(8) == true){ 
+        elevState = 1;
+      }
+      else if(logitechJoystick.getRawButton(10) == true){
+         elevState = 2;
+      }
+      else if (logitechJoystick.getRawButton(12)== true){
+        elevState = 3;
+      }
+      else if(logitechJoystick.getRawButton(1) == true){
+        elevState = 4;
+      } */
+      
+      //main elevator backup/manual code
+      if(logitechJoystick.getRawAxis(1) > 0.5){
         elevLeft.set(-1);
-        elevRight.set(.95);}
-      else if (logitechJoystick.getRawAxis(1)<-.5){
+        elevRight.set(.95);
+        }
+      else if(logitechJoystick.getRawAxis(1) < -0.5){
         elevLeft.set(1);
         elevRight.set(-1);
       }
@@ -152,6 +149,7 @@ public class Robot extends TimedRobot {
         elevLeft.set(0);
         elevRight.set(0);
       }
+
       
 
      //Intake
@@ -165,8 +163,21 @@ public class Robot extends TimedRobot {
      double rawSpeed1 = logitechController.getRawAxis(1);
      double rawSpeed2 = logitechController.getRawAxis(5);
     
-     logSpeed1 = Math.asin(rawSpeed1);
-     logSpeed2 = Math.asin(rawSpeed2);
+     //logSpeed1 = Math.asin(rawSpeed1 * rawSpeed1);
+     //logSpeed2 = Math.asin(rawSpeed2 * rawSpeed2);
+     //logSpeed1 = Math.asin(rawSpeed1);
+     //logSpeed2 = Math.asin(rawSpeed2);
+
+      //Setting up Logarithmic Drive 
+      if (rawSpeed1 >= 0){ 
+        logSpeed1 = (rawSpeed1 * rawSpeed1 * .8); } 
+      else { 
+        logSpeed1 = -(rawSpeed1 * rawSpeed1 *.8); } 
+      if (rawSpeed2 >= 0){ 
+        logSpeed2 = (rawSpeed2 * rawSpeed2 * .8); } 
+      else { 
+        logSpeed2 = -(rawSpeed2 * rawSpeed2 * .8); }
+
      System.out.println(logSpeed1);
      System.out.println(logSpeed2);
      m_drive.tankDrive(-logSpeed1, -logSpeed2);
